@@ -18,8 +18,8 @@ Shader "Graph/Point Surface"
         float _Smoothness;
         void ConfigureSurface (Input input, inout SurfaceOutputStandard surface)
         {
-            surface.Albedo.rg = saturate(input.worldPos.xy * 0.5 + 0.5); // supaya range -1 - 1 jadi 0 - 1
-            surface.Smoothness = _Smoothness; // change the materila from matte to look more like default
+            surface.Albedo = saturate(input.worldPos * 0.5 + 0.5); // supaya range -1 - 1 jadi 0 - 1
+            surface.Smoothness = _Smoothness; // change the material from matte to look more shiny
         }
         ENDCG
     }

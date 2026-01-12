@@ -1,6 +1,5 @@
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
+
 
 public class graph : MonoBehaviour
 {
@@ -8,20 +7,17 @@ public class graph : MonoBehaviour
     Transform pointPrefab;
     [SerializeField, Range(10, 100)]
     int resolution = 10;
-    [SerializeField, Range(0, 2)]
-    int function;
+    [SerializeField]
+    FunctionLibrary.FunctionName function;
     Transform[] points; //field, reference to array
     void Awake()
     {
         float step = 2f / resolution;
-        var position = Vector3.zero;
         var scale = Vector3.one * step;
-        points = new Transform[resolution]; //create object
+        points = new Transform[resolution * resolution]; //create object
         for (int i = 0; i < points.Length; i++)
         {
             Transform point = points[i] = Instantiate(pointPrefab);
-            position.x = (i + 0.5f) * step - 1f;
-            point.localPosition = position;
             point.localScale = scale;
             point.SetParent(transform, false);
         }
@@ -29,24 +25,20 @@ public class graph : MonoBehaviour
 
     void Update()
     {
+        FunctionLibrary.Function f = FunctionLibrary.GetFunction(function);
         float time = Time.time;
-        for (int i = 0; i < points.Length; i++)
+        float step = 2f / resolution;
+        float v = 0.5f * step - 1f;
+        for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++)
         {
-            Transform point = points[i];
-            Vector3 position = point.localPosition;
-            if (function == 0)
+            if (x == resolution)
             {
-                position.y = FunctionLibrary.Wave(position.x, time);
+                x = 0;
+                z += 1;
+                v = (z + 0.5f) * step - 1f;
             }
-            else if (function == 1)
-            {
-                position.y = FunctionLibrary.MultiWave(position.x, time);
-            }
-            else
-            {
-                position.y = FunctionLibrary.Ripple(position.x, time);
-            }
-            point.localPosition = position;
+            float u = (x + 0.5f) * step - 1f;
+            points[i].localPosition = f(u, v, time);
         }
     }
 }
