@@ -4,12 +4,35 @@ using static UnityEngine.Mathf;
 public static class FunctionLibrary
 {
     public delegate Vector3 Function(float u, float v, float t);
-    public enum FunctionName { Wave, MultiWave, Ripple, Sphere, TwistedSphere, Torus, TwistedTorus } // simple labels, not referencing anything. each label respresents int 
+    public enum FunctionName { Wave, MultiWave, Ripple, Sphere, TwistedSphere, Torus, TwistedTorus } // simple labels (array)
     static Function[] functions = { Wave, MultiWave, Ripple, Sphere, TwistedSphere, Torus, TwistedTorus }; // not public to guarantee it doesn't change
     public static Function GetFunction(FunctionName name)
     {
         return functions[(int)name]; // first label corresponds to 0 etc, has to be explicit
     }
+
+    // transitions
+    public static FunctionName GetNextFunctionName(FunctionName name)
+    {
+        return (int)name < functions.Length - 1 ? name + 1 : 0;
+    }
+    public static FunctionName GetRandomFunctionNameOtherThan(FunctionName name)
+    {
+        var choice = (FunctionName)Random.Range(1, functions.Length);
+        return choice == name ? 0 : choice;
+    }
+
+    // interpolate
+    public static Vector3 Morph(
+        float u, float v, float t, Function from, Function to, float progress
+    )
+    {
+        return Vector3.LerpUnclamped(
+            from(u, v, t), to(u, v, t), SmoothStep(0f, 1f, progress)
+        ); // lerp clamps 0-1, smoothstep does that as well -> lerpunclamped
+    }
+
+    // functions
     public static Vector3 Wave(float u, float v, float t)
     {
         Vector3 p;
